@@ -1,0 +1,7 @@
+Django>=5.2.0
+yt-dlp==2026.06.09
+django-cors-headers==4.9.0
+moviepy==1.0.3
+Pillow<=12.0.0
+requests>=2.34.2
+eyed3>=0.9.9

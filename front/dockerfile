@@ -1,0 +1,21 @@
+# Usamos una versión ligera de Node.js
+FROM node:20-alpine
+
+# Establecemos /app como el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Copiamos SOLO los package.json desde tu subcarpeta al directorio /app
+COPY ./front-downloader/package*.json ./
+
+# Instalamos las dependencias
+RUN npm install
+RUN npm install -g @angular/cli
+
+# Copiamos el resto del código de Angular desde la subcarpeta a /app
+COPY ./front-downloader/ ./
+
+# Exponemos el puerto por defecto de Angular
+EXPOSE 8080
+
+# Comando para iniciar la aplicación
+CMD ["npm", "start"]

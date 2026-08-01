@@ -1,0 +1,96 @@
+# =========================
+# GENERAL / SISTEMA
+# =========================
+.DS_Store
+**/.DS_Store
+Thumbs.db
+ehthumbs.db
+$RECYCLE.BIN/
+
+# =========================
+# ENTORNO VIRTUAL Y VARIABLES
+# =========================
+.venv/
+env/
+venv/
+.env
+.env.local
+*.env
+cookies.txt
+
+# =========================
+# IDEs
+# =========================
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+*.sublime-workspace
+*.sublime-project
+
+# =========================
+# BACKEND
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+
+# Base de datos local
+db.sqlite3
+*.sqlite3
+
+# Archivos estáticos y multimedia de Django
+back/media/
+back/staticfiles/
+back/static_root/
+
+# Logs y pruebas de Python
+*.log
+back/cookies.txt
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# FRONTEND
+# =========================
+# Salidas de compilación
+front/front-downloader/dist/
+front/front-downloader/tmp/
+front/front-downloader/out-tsc/
+front/front-downloader/bazel-out/
+
+# Node Modules
+front/front-downloader/node_modules/
+front/front-downloader/npm-debug.log*
+front/front-downloader/yarn-error.log*
+front/front-downloader/yarn-debug.log*
+
+# Angular Caché
+front/front-downloader/.angular/
+
+# Misceláneos del Front
+front/front-downloader/.sass-cache/
+front/front-downloader/.connect.lock
+front/front-downloader/.libpeerconnection.log
+front/front-downloader/testem.log
+front/front-downloader/.typings/
+front/front-downloader/__screenshots__/
+
+# =========================
+# DOCKER Y VOLÚMENES
+# =========================
+# Volúmenes de bases de datos locales
+.pgdata/
+pgdata/
+mysql_data/
+db_data/
+redis_data/
+
+# Archivos de configuración local de Docker
+docker-compose.local.yml
+docker-compose.override.yml

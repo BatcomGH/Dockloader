@@ -1,0 +1,14 @@
+# Entorno virtual y caché
+.venv/
+env/
+venv/
+__pycache__/
+*.py[cod]
+
+# Base de datos local y multimedia
+db.sqlite3
+media/
+
+# Git y variables de entorno
+.git/
+.env

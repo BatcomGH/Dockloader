@@ -1,0 +1,13 @@
+# Ignorar dependencias locales
+front-downloader/node_modules/
+front-downloader/npm-debug.log*
+
+# Compilados y caché local
+front-downloader/dist/
+front-downloader/tmp/
+front-downloader/out-tsc/
+front-downloader/.angular/
+
+# Git y variables de entorno
+.git/
+.env

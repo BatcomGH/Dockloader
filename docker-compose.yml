@@ -1,0 +1,30 @@
+services:
+  backend:
+    image: downloader-backend
+    pull_policy: never
+    container_name: downloader-backend
+    build:
+      context: ./back
+      dockerfile: dockerfile
+    ports:
+      - "6767:6767"
+    env_file:
+      - ./back/.env
+    volumes:
+      - ./back:/app
+
+  frontend:
+    image: downloader-frontend
+    pull_policy: never
+    container_name: downloader-frontend
+    build:
+      context: ./front
+      dockerfile: dockerfile
+    ports:
+      - 8080:4200
+    volumes:
+      # Sincroniza el código local con la carpeta /app del contenedor
+      - ./front/front-downloader:/app
+      # Volumen anónimo CRÍTICO: Evita que la carpeta local node_modules 
+      # sobrescriba la carpeta node_modules del contenedor Linux
+      - /app/node_modules

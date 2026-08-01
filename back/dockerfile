@@ -1,0 +1,22 @@
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y nodejs ffmpeg
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 1. Establecemos /app como tu entorno de trabajo en el contenedor
+WORKDIR /app
+
+# 2. Copiamos tus dependencias desde tu carpeta back local al contenedor
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 3. Copiamos todo el contenido de tu carpeta back (incluyendo 'downback')
+COPY . .
+
+EXPOSE 6767
+
+# 4. Como estamos en /app, le decimos que entre a downback para ejecutar manage.py
+CMD ["python", "downback/manage.py", "runserver", "0.0.0.0:6767"]
