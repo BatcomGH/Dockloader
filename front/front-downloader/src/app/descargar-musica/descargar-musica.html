@@ -1,21 +1,21 @@
 <div class="div-padre">
   <div class="container" align="center">
-    <h3>Descargador de Audio</h3>
+    <h3>Descargador de Música</h3>
 
     <hr/>
 
-    <p>Ingresa la URL del video que deseas descargar como audio:</p>
+    <p>Ingresa la URL del video que deseas descargar como música:</p>
 
     <div class="form-group">
       <input
         class="form-control"
         type="url"
-        [(ngModel)]="audioUrl"
-        placeholder="https://www.mipagina.com/..."
+        [(ngModel)]="videoUrl"
+        placeholder="https://www.youtube.com/watch?v=..."
         [disabled]="cargando"
       >
 
-            <button (click)="descargar()" [disabled]="!audioUrl || cargando" class="btn btn-dark mt-3 d-inline-flex align-items-center">
+            <button (click)="descargar()" [disabled]="!videoUrl || cargando" class="btn btn-dark mt-3 d-inline-flex align-items-center">
 
         @if (cargando) {
           <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
@@ -35,7 +35,7 @@
     }
 
     <div class="mt-3">
-        <p><em>Plataformas soportadas:</em> Sitios soportados por YT-DLP</p>
+        <p><em>Plataformas soportadas:</em> Youtube y Youtube Music</p>
     </div>
 
   </div>
