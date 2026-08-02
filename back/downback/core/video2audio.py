@@ -125,9 +125,9 @@ def imgCover(rutAud, rutImg, autor): #Inserta en los metadatos la miniatura
         if audio.tag is None:
             audio.initTag()
 
-        if autor is not None:
-            audio.tag.artist = autor
-            audio.tag.save()
+        print("Artista del video:", autor)
+        audio.tag.artist = autor
+        audio.tag.save()
         
         img_data = open(os.path.join(DIR_IMG, rutImg), 'rb').read()
         audio.tag.images.set(3, img_data, 'image/jpg')
@@ -138,7 +138,7 @@ def imgCover(rutAud, rutImg, autor): #Inserta en los metadatos la miniatura
         print(e)
         logging(rutAud, "Miniatura no insertada", e)
     
-def audDownCore(url, autor=None, nombre=None): #Pipline del programa
+def audDownCore(url, autor="No conocido", nombre=None): #Pipline del programa
     try:
         if nombre == None:
             nombre = "AUDIO_"+datetime.datetime.now().strftime("%Y_%m_%d_%H-%M-%S")
@@ -187,7 +187,7 @@ def audDownMain(url): #Validación del link previo a la descarga
         if titulo == "NoTitle":
             raise Exception("No se pudo obtener el título del video debido a un error. Posiblemente un error 429 (Muchas solicitudes). Espere algunos minutos antes de intentar nuevamente o configure las cookies de sesión.")
         if autor == None:
-            autor = "Desconocido"
+            autor = "No conocido"
 
         print("="*100)
         print("OBTENIENDO VIDEO Y CONVIRTIENDO A AUDIO...")
