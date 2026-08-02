@@ -42,7 +42,7 @@ def descargar_video_api(request):
             if 'is not a valid URL' in str(e):
                 error_response = JsonResponse({'error': f'\"{video_url}\" es una URL no válida'}, status=400)
             elif 'This video may be inappropriate for some users.' in str(e):
-                error_response = JsonResponse({'error': f'El video de la URL \"{video_url}\" tiene restricción de edad y no puede ser descargado'}, status=403)
+                error_response = JsonResponse({'error': f'El video de la URL \"{video_url}\" tiene restricción de edad y no puede ser descargado. Configurar cookies de sesión para descargar videos restringidos.'}, status=403)
             else:
                 error_response = JsonResponse({'error': f'Error al intentar descargar el video: {str(e)}'}, status=500)
             error_response['Access-Control-Allow-Origin'] = '*'
@@ -69,6 +69,9 @@ def descargar_audio_api(request):
         
             ruta_archivo_descargado = video2music.audDownMain(video_url)
 
+            if ruta_archivo_descargado == "NoTitle":
+                raise Exception("No se pudo obtener el título del video debido a un error. Posiblemente un error 429 (Muchas solicitudes). Espere algunos minutos antes de intentar nuevamente.")
+
             if not ruta_archivo_descargado:
                 # SOLUCIÓN 1: Agregar CORS a este error
                 response = JsonResponse({'error': 'Error al descargar el video'}, status=500)
@@ -90,7 +93,7 @@ def descargar_audio_api(request):
             if 'is not a valid URL' in str(e):
                 error_response = JsonResponse({'error': f'\"{video_url}\" es una URL no válida'}, status=400)
             elif 'This video may be inappropriate for some users.' in str(e):
-                error_response = JsonResponse({'error': f'El video de la URL \"{video_url}\" tiene restricción de edad y no puede ser descargado'}, status=403)
+                error_response = JsonResponse({'error': f'El video de la URL \"{video_url}\" tiene restricción de edad y no puede ser descargado. Configurar cookies de sesión para descargar videos restringidos.'}, status=403)
             else:
                 error_response = JsonResponse({'error': f'Error al intentar descargar el video: {str(e)}'}, status=500)
             error_response['Access-Control-Allow-Origin'] = '*'

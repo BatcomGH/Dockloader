@@ -1,5 +1,3 @@
----
-
 # Dockloader
 
 Este es un proyecto Full-Stack desarrollado con **Angular** para el Frontend y **Django + Django Rest Framework (DRF)** para el Backend.

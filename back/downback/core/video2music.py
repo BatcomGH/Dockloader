@@ -45,7 +45,7 @@ def vidDown(nombre, url): #Descarga el video
         opciones = {
             'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
             'merge_output_format': 'mp4',
-            'js_runtimes': {'node': {}},
+            #'js_runtimes': ['node'],
             'cookiefile': cookies.rutaCookies,
             'restrictfilenames': True,
         }
@@ -54,7 +54,7 @@ def vidDown(nombre, url): #Descarga el video
             'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
             'merge_output_format': 'mp4',
-            'js_runtimes': {'node': {}},
+            #'js_runtimes': ['node'],
         }
     
     with yt_dlp.YoutubeDL(opciones) as ydl:
@@ -64,20 +64,21 @@ def vidDown(nombre, url): #Descarga el video
     
 def vidNameNThumb(url): #Extrae el nombre del video y el URL de la miniatura
     try:
-        with yt_dlp.YoutubeDL({'js_runtimes': {'node': {}}}) as ydl:
+        with yt_dlp.YoutubeDL() as ydl:
             info = ydl.extract_info(url, download=False)
-            titulo = info.get("title", "sin_titulo")
+            titulo = info.get("title", "Notitulo")
             print("Título del video:", titulo)
             titulo = limNom(titulo)
             minUrl = info.get("thumbnail", "No miniatura")
             thumbDown(minUrl, titulo)
             print("¡Miniatura descargada!")
     except Exception as e:
-        print("Ha ocurrido un error inesperado en obtener los datos del video(!).")
+        print("!"*100)
+        print("(!)Ha ocurrido un error inesperado al obtener los datos del video(!).")
         print(e)
         logging(url, "No obtenido", e)
         return None
-    
+
     return titulo
     
 def audConv(ruta): #Convierte el video a audio
@@ -103,7 +104,8 @@ def audDownCore(nombre, url): #Pipline del programa
         print("¡Conversión finalizada!")
         destructArch(nombre)
     except Exception as e:
-        print("Ha ocurrido un error inesperado(!).")
+        print("!"*100)
+        print("(!)Ha ocurrido un error inesperado(!).")
         print(e)
         logging(url, nombre, e)
         destructArch(nombre)
@@ -130,8 +132,20 @@ def limNom(nom): #Limpia el título de carácteres no admitidos
 def audDownMain(url): #Validación del link previo a la descarga
     dirVer()
     if ("youtube" in url) or ("youtu.be" in url):
+        print("INICIANDO DESCARGA...")
+        print("="*100)
+        print("OBTENIENDO DATOS DEL VIDEO...")
         titulo = vidNameNThumb(url)
+
+        if titulo is None:
+            print("No se pudo obtener el título del video. Abortando descarga.")
+            return "NoTitle"
+
+        print("="*100)
+        print("OBTENIENDO VIDEO Y CONVIRTIENDO A AUDIO...")
         audDownCore(titulo, url)
+
+        print("="*100)
         return os.path.join(DIR_AUD, titulo+".mp3")
     else:
         print("Link inválido.")
