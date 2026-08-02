@@ -6,6 +6,7 @@ import eyed3
 import time
 import os
 from . import cookies
+import datetime
 
 CUR_DIR = "/tmp"
 DIR_VID = os.path.join(CUR_DIR, "Videos")
@@ -37,30 +38,44 @@ def logging(url, video, mensaje): #Escribe en la bitácora los errores generados
         f.write("="*100 + "\n" + url + "\n" + video + "\n" + str(mensaje) + "\n" + "="*100 + "\n")
 
 def thumbDown(minUrl, titulo): #Descarga la miniatura del video
-    minImg = Image.open(requests.get(minUrl, stream=True).raw)
-    minImg.save(os.path.join(DIR_IMG, titulo+".jpg"))
+    try:
+        minImg = Image.open(requests.get(minUrl, stream=True).raw)
+        minImg.save(os.path.join(DIR_IMG, titulo+".jpg"))
+    except Exception as e:
+        print("!"*100)
+        print("(!)Ha ocurrido un error inesperado al descargar la miniatura(!).")
+        print(e)
+        logging(minUrl, titulo, e)
+        raise e
 
 def vidDown(nombre, url): #Descarga el video
-    if not cookies.isCookiesEmpty():
-        opciones = {
-            'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
-            'merge_output_format': 'mp4',
-            #'js_runtimes': ['node'],
-            'cookiefile': cookies.rutaCookies,
-            'restrictfilenames': True,
-        }
-    else:
-        opciones = {
-            'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
-            'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-            'merge_output_format': 'mp4',
-            #'js_runtimes': ['node'],
-        }
-    
-    with yt_dlp.YoutubeDL(opciones) as ydl:
-        print("Iniciando descarga del video...")
-        ydl.download([url])
-        print("¡Descarga completada!... Convirtiendo a audio...")
+    try:
+        if not cookies.isCookiesEmpty():
+            opciones = {
+                'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
+                'merge_output_format': 'mp4',
+                #'js_runtimes': ['node'],
+                'cookiefile': cookies.rutaCookies,
+                'restrictfilenames': True,
+            }
+        else:
+            opciones = {
+                'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
+                'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+                'merge_output_format': 'mp4',
+                #'js_runtimes': ['node'],
+            }
+        
+        with yt_dlp.YoutubeDL(opciones) as ydl:
+            print("Iniciando descarga del video...")
+            ydl.download([url])
+            print("¡Descarga completada!... Convirtiendo a audio...")
+    except Exception as e:
+        print("!"*100)
+        print("(!)Ha ocurrido un error inesperado al descargar el video(!).")
+        print(e)
+        logging(url, nombre, e)
+        raise e
     
 def vidNameNThumb(url): #Extrae el nombre del video y el URL de la miniatura
     try:
@@ -76,8 +91,8 @@ def vidNameNThumb(url): #Extrae el nombre del video y el URL de la miniatura
         print("!"*100)
         print("(!)Ha ocurrido un error inesperado al obtener los datos del video(!).")
         print(e)
-        logging(url, "No obtenido", e)
-        return None
+        logging(url, "Datos del video no obtenidos", e)
+        return "NoTitle"
 
     return titulo
     
@@ -89,20 +104,31 @@ def audConv(ruta): #Convierte el video a audio
     video.close()
 
 def imgCover(rutAud, rutImg): #Inserta en los metadatos la miniatura
-    audio = eyed3.load(rutAud)
-    if audio.tag is None:
-        audio.initTag()
-    img_data = open(os.path.join(DIR_IMG, rutImg), 'rb').read()
-    audio.tag.images.set(3, img_data, 'image/jpg')
-    audio.tag.save()
-    
-def audDownCore(nombre, url): #Pipline del programa
     try:
+        audio = eyed3.load(rutAud)
+        if audio.tag is None:
+            audio.initTag()
+        img_data = open(os.path.join(DIR_IMG, rutImg), 'rb').read()
+        audio.tag.images.set(3, img_data, 'image/jpg')
+        audio.tag.save()
+    except Exception as e:
+        print("!"*100)
+        print("(!)Ha ocurrido un error inesperado al insertar la miniatura en los metadatos(!).")
+        print(e)
+        logging(rutAud, "Miniatura no insertada", e)
+    
+def audDownCore(url, nombre=None): #Pipline del programa
+    try:
+        if nombre == None:
+            nombre = "AUDIO_"+datetime.datetime.now().strftime("%Y_%m_%d_%H-%M-%S")
+
         vidDown(nombre, url)
         audConv(os.path.join(DIR_VID, nombre+".mp4"))
         imgCover(os.path.join(DIR_AUD, nombre+".mp3"), os.path.join(DIR_IMG, nombre+".jpg"))
         print("¡Conversión finalizada!")
         destructArch(nombre)
+
+        return os.path.join(DIR_AUD, nombre+".mp3")
     except Exception as e:
         print("!"*100)
         print("(!)Ha ocurrido un error inesperado(!).")
@@ -137,9 +163,8 @@ def audDownMain(url): #Validación del link previo a la descarga
         print("OBTENIENDO DATOS DEL VIDEO...")
         titulo = vidNameNThumb(url)
 
-        if titulo is None:
-            print("No se pudo obtener el título del video. Abortando descarga.")
-            return "NoTitle"
+        if titulo == "NoTitle":
+            raise Exception("No se pudo obtener el título del video debido a un error. Posiblemente un error 429 (Muchas solicitudes). Espere algunos minutos antes de intentar nuevamente o configure las cookies de sesión.")
 
         print("="*100)
         print("OBTENIENDO VIDEO Y CONVIRTIENDO A AUDIO...")
@@ -148,5 +173,4 @@ def audDownMain(url): #Validación del link previo a la descarga
         print("="*100)
         return os.path.join(DIR_AUD, titulo+".mp3")
     else:
-        print("Link inválido.")
-        return None
+        raise Exception("URL no válida. Por favor, ingrese una URL de YouTube o youtu.be.")
