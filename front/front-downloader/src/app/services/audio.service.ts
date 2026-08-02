@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AudioService {
-  private apiUrl = 'http://192.168.100.153:6767/api/descargar_audio/';
+  private apiUrl = environment.apiUrl + '/descargar_audio/';
 
   constructor(private http: HttpClient) { }
 
