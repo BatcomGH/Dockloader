@@ -23,7 +23,7 @@ services:
     ports:
       - 8080:4200
     volumes:
-      # Sincroniza el código local con la carpeta /app del contenedor
+      # Sincronización del código local con la carpeta /app del contenedor
       - ./front/front-downloader:/app
       # Volumen anónimo CRÍTICO: Evita que la carpeta local node_modules 
       # sobrescriba la carpeta node_modules del contenedor Linux
