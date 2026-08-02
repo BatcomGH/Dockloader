@@ -17,7 +17,7 @@ venv/
 .env.local
 *.env
 cookies.txt
-Logging.*
+Logging.txt
 
 # =========================
 # IDEs
