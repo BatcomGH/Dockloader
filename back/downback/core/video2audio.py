@@ -54,7 +54,7 @@ def vidDown(nombre, url): #Descarga el video
             opciones = {
                 'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
                 'merge_output_format': 'mp4',
-                #'js_runtimes': ['node'],
+                'js_runtimes': {'deno': {}},
                 'cookiefile': cookies.rutaCookies,
                 'restrictfilenames': True,
             }
@@ -63,7 +63,7 @@ def vidDown(nombre, url): #Descarga el video
                 'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
                 'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
                 'merge_output_format': 'mp4',
-                #'js_runtimes': ['node'],
+                'js_runtimes': {'deno': {}},
             }
         
         with yt_dlp.YoutubeDL(opciones) as ydl:
@@ -78,12 +78,28 @@ def vidDown(nombre, url): #Descarga el video
         raise e
     
 def vidNameNThumb(url): #Extrae el nombre del video y el URL de la miniatura
+
+    if not cookies.isCookiesEmpty():
+        opciones = {
+            'cookiefile': cookies.rutaCookies,
+            'js_runtimes': {'deno': {}},
+        }
+    else:
+        opciones = {
+            'js_runtimes': {'deno': {}},
+        }
+
     try:
-        with yt_dlp.YoutubeDL() as ydl:
+        with yt_dlp.YoutubeDL(opciones) as ydl:
             info = ydl.extract_info(url, download=False)
             titulo = info.get("title", "Notitulo")
             print("Título del video:", titulo)
             titulo = limNom(titulo)
+
+            autor = info.get("artist") or info.get("uploader", "Desconocido")
+            autor = limNom(autor)
+            print("Autor del video:", autor)
+
             minUrl = info.get("thumbnail", "No miniatura")
             thumbDown(minUrl, titulo)
             print("¡Miniatura descargada!")
@@ -94,7 +110,7 @@ def vidNameNThumb(url): #Extrae el nombre del video y el URL de la miniatura
         logging(url, "Datos del video no obtenidos", e)
         return "NoTitle"
 
-    return titulo
+    return titulo, autor
     
 def audConv(ruta): #Convierte el video a audio
     name = os.path.basename(ruta)
@@ -103,11 +119,16 @@ def audConv(ruta): #Convierte el video a audio
     video.audio.write_audiofile(salida)
     video.close()
 
-def imgCover(rutAud, rutImg): #Inserta en los metadatos la miniatura
+def imgCover(rutAud, rutImg, autor): #Inserta en los metadatos la miniatura
     try:
         audio = eyed3.load(rutAud)
         if audio.tag is None:
             audio.initTag()
+
+        if autor is not None:
+            audio.tag.artist = autor
+            audio.tag.save()
+        
         img_data = open(os.path.join(DIR_IMG, rutImg), 'rb').read()
         audio.tag.images.set(3, img_data, 'image/jpg')
         audio.tag.save()
@@ -117,14 +138,14 @@ def imgCover(rutAud, rutImg): #Inserta en los metadatos la miniatura
         print(e)
         logging(rutAud, "Miniatura no insertada", e)
     
-def audDownCore(url, nombre=None): #Pipline del programa
+def audDownCore(url, autor=None, nombre=None): #Pipline del programa
     try:
         if nombre == None:
             nombre = "AUDIO_"+datetime.datetime.now().strftime("%Y_%m_%d_%H-%M-%S")
 
         vidDown(nombre, url)
         audConv(os.path.join(DIR_VID, nombre+".mp4"))
-        imgCover(os.path.join(DIR_AUD, nombre+".mp3"), os.path.join(DIR_IMG, nombre+".jpg"))
+        imgCover(os.path.join(DIR_AUD, nombre+".mp3"), os.path.join(DIR_IMG, nombre+".jpg"), autor)
         print("¡Conversión finalizada!")
         destructArch(nombre)
 
@@ -161,14 +182,16 @@ def audDownMain(url): #Validación del link previo a la descarga
         print("INICIANDO DESCARGA...")
         print("="*100)
         print("OBTENIENDO DATOS DEL VIDEO...")
-        titulo = vidNameNThumb(url)
+        titulo, autor = vidNameNThumb(url)
 
         if titulo == "NoTitle":
             raise Exception("No se pudo obtener el título del video debido a un error. Posiblemente un error 429 (Muchas solicitudes). Espere algunos minutos antes de intentar nuevamente o configure las cookies de sesión.")
+        if autor == None:
+            autor = "Desconocido"
 
         print("="*100)
         print("OBTENIENDO VIDEO Y CONVIRTIENDO A AUDIO...")
-        audDownCore(titulo, url)
+        audDownCore(url, autor=autor, nombre=titulo)
 
         print("="*100)
         return os.path.join(DIR_AUD, titulo+".mp3")
