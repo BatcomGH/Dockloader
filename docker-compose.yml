@@ -9,7 +9,7 @@ services:
     ports:
       - "6767:6767"
     env_file:
-      - ./back/.env
+      - path: ./back/.env
         required: false
     volumes:
       - ./back:/app
