@@ -10,6 +10,7 @@ services:
       - "6767:6767"
     env_file:
       - ./back/.env
+        required: false
     volumes:
       - ./back:/app
 
