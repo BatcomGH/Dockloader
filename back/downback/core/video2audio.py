@@ -50,21 +50,16 @@ def thumbDown(minUrl, titulo): #Descarga la miniatura del video
 
 def vidDown(nombre, url): #Descarga el video
     try:
+        opciones = {
+            'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
+            'merge_output_format': 'mp4',
+            'js_runtimes': {'deno': {}},
+            'restrictfilenames': True,
+            'noplaylist': True,
+        }
+
         if not cookies.isCookiesEmpty():
-            opciones = {
-                'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
-                'merge_output_format': 'mp4',
-                'js_runtimes': {'deno': {}},
-                'cookiefile': cookies.rutaCookies,
-                'restrictfilenames': True,
-            }
-        else:
-            opciones = {
-                'outtmpl': f'{DIR_VID}/{nombre}.%(ext)s',
-                'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-                'merge_output_format': 'mp4',
-                'js_runtimes': {'deno': {}},
-            }
+            opciones['cookiefile'] = cookies.rutaCookies
         
         with yt_dlp.YoutubeDL(opciones) as ydl:
             print("Iniciando descarga del video...")
@@ -78,16 +73,12 @@ def vidDown(nombre, url): #Descarga el video
         raise e
     
 def vidNameNThumb(url): #Extrae el nombre del video y el URL de la miniatura
+    opciones = {
+            'js_runtimes': {'deno': {}},
+        }
 
     if not cookies.isCookiesEmpty():
-        opciones = {
-            'cookiefile': cookies.rutaCookies,
-            'js_runtimes': {'deno': {}},
-        }
-    else:
-        opciones = {
-            'js_runtimes': {'deno': {}},
-        }
+        opciones['cookiefile'] = cookies.rutaCookies
 
     try:
         with yt_dlp.YoutubeDL(opciones) as ydl:
