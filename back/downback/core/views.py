@@ -20,7 +20,7 @@ def descargar_video_api(request):
                 return response
             
             dirDescargas = "/tmp"
-            ruta_archivo_descargado = downloader.descargar_video(video_url, dirDescargas)
+            ruta_archivo_descargado = downloader.descargar_video(video_url, output_path=dirDescargas)
 
             if not ruta_archivo_descargado:
                 response = JsonResponse({'error': 'Error al descargar el video'}, status=500)
